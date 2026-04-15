@@ -1,7 +1,7 @@
-# Ghost-Author Frontend Documentation
+# RiseSplit (Ghost-Author) Frontend Documentation
 
 ## 1. What This App Does
-Ghost-Author is a wallet-first royalty splitter DApp UI for your Soroban contract.
+RiseSplit (UI label: Ghost-Author) is a wallet-first royalty splitter DApp UI for your Soroban contract.
 
 It lets users:
 - Connect Freighter wallet
@@ -59,7 +59,7 @@ Rust errors mapped into friendly UI messages:
 ## 6. Environment Variables
 Copy `.env.example` to `.env` and fill values:
 
-- `VITE_ROYALTY_CONTRACT_ID`: deployed royalty splitter contract ID (`C...`)
+- `VITE_ROYALTY_CONTRACT_ID`: `CBVQM5DH4CNQOXYODIBD5ZBCPIGOWDVVRIMMNMGRH4RLUMINZC73PMA2`
 - `VITE_XLM_SAC_CONTRACT_ID`: native XLM SAC contract ID (`C...`)
 - `VITE_USDC_SAC_CONTRACT_ID`: USDC SAC contract ID (`C...`, optional if unused)
 - `VITE_STELLAR_RPC_URL`: Soroban RPC URL
@@ -67,6 +67,10 @@ Copy `.env.example` to `.env` and fill values:
 - `VITE_STELLAR_NETWORK`: `TESTNET`
 - `VITE_STELLAR_NETWORK_PASSPHRASE`: `Test SDF Network ; September 2015`
 - `VITE_STELLAR_EXPERT_NETWORK`: `testnet`
+
+Test dummy accounts:
+- `GCG77MJHMK3QNHETQ5DY5G7K6YTBMTZTR7AB7NI3VH3OEQCXMGVG3ORH`
+- `GCT7DYT7AQE7K5RFOWL24VOOU5CN6PNUUK2ZFZOAJGHVH62TRZ7YFDYF`
 
 ## 7. Run Locally
 ```bash
