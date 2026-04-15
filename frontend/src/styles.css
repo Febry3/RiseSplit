@@ -1,23 +1,37 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color: #f5f5f7;
-  background: #0d0e12;
-  font-family: "Inter", system-ui, sans-serif;
+  color: #f7f8fb;
+  background: #090b10;
+  font-family: "Manrope", sans-serif;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  color: #f5f5f7;
+  color: #f7f8fb;
   background:
-    radial-gradient(circle at 10% 10%, rgba(124, 58, 237, 0.25), transparent 40%),
-    radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.18), transparent 35%),
-    #0d0e12;
+    radial-gradient(circle at 8% 12%, rgba(54, 188, 255, 0.15), transparent 42%),
+    radial-gradient(circle at 88% 18%, rgba(124, 58, 237, 0.2), transparent 44%),
+    radial-gradient(circle at 80% 84%, rgba(16, 185, 129, 0.14), transparent 36%),
+    linear-gradient(140deg, #090b10 0%, #0e1119 44%, #0b0d13 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 46px 46px, 46px 46px;
+  mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
 }
 
 #root {
@@ -25,27 +39,150 @@ body {
 }
 
 @layer components {
+  .page-shell {
+    position: relative;
+  }
+
+  .page-shell::before {
+    content: "";
+    position: absolute;
+    left: 22%;
+    top: -56px;
+    width: 400px;
+    height: 400px;
+    pointer-events: none;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.16), transparent 70%);
+    filter: blur(6px);
+  }
+
   .glass-card {
     @apply rounded-2xl border border-white/10 bg-panel backdrop-blur-md;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 16px 38px rgba(4, 6, 14, 0.5);
   }
 
   .neon-button {
-    @apply inline-flex items-center justify-center rounded-xl border border-cyber/70 bg-cyber/20 px-4 py-2 text-sm font-semibold text-white shadow-neon transition;
+    @apply inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold text-white transition;
+    border-color: rgba(124, 58, 237, 0.6);
+    background:
+      linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(49, 86, 232, 0.4)),
+      rgba(124, 58, 237, 0.2);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 10px 24px rgba(85, 72, 227, 0.35);
   }
 
   .neon-button:hover {
-    @apply bg-cyber/35;
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 14px 28px rgba(85, 72, 227, 0.45);
   }
 
   .neon-button:disabled {
-    @apply cursor-not-allowed border-white/10 bg-white/5 text-white/50 shadow-none;
+    @apply cursor-not-allowed text-white/50 shadow-none;
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    transform: none;
+  }
+
+  .ghost-outline-button {
+    @apply rounded-xl border px-3 py-2 text-sm font-medium transition;
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .ghost-outline-button:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .input {
     @apply h-11 w-full rounded-xl border border-white/20 bg-black/25 px-3 text-sm text-white outline-none transition focus:border-cyber;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
   }
 
   .badge {
     @apply inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium;
+  }
+
+  .site-nav {
+    background:
+      linear-gradient(180deg, rgba(20, 22, 30, 0.74), rgba(20, 22, 30, 0.56)),
+      rgba(20, 22, 30, 0.52);
+  }
+
+  .hero-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    right: -86px;
+    top: -72px;
+    width: 250px;
+    height: 250px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(40, 201, 255, 0.2), transparent 64%);
+    pointer-events: none;
+  }
+
+  .hero-kicker {
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .hero-headline {
+    font-family: "Space Grotesk", sans-serif;
+    text-wrap: balance;
+  }
+
+  .problem-card {
+    @apply rounded-xl border bg-black/25 p-3;
+    border-color: rgba(255, 255, 255, 0.1);
+    transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  }
+
+  .problem-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .flow-card {
+    background:
+      linear-gradient(160deg, rgba(24, 26, 36, 0.72), rgba(18, 20, 28, 0.55)),
+      rgba(20, 22, 30, 0.62);
+  }
+
+  .flow-step {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .flow-step::after {
+    content: "";
+    position: absolute;
+    inset: auto -40px -80px auto;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.14), transparent 72%);
+    pointer-events: none;
+  }
+
+  .stat-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+      rgba(20, 22, 30, 0.52);
+  }
+
+  .table-shell {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+      rgba(20, 22, 30, 0.58);
   }
 }
