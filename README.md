@@ -1,98 +1,140 @@
-# Stellar Notes DApp
+# RiseSplit
 
-**Stellar Notes DApp** - Blockchain-Based Decentralized Note-Taking System
+RiseSplit is a Soroban-based royalty distribution app for creator collaborations. It allows one payer transaction to split funds atomically to multiple stakeholders using predefined basis-point shares.
 
-## Project Description
-Stellar Notes DApp is a decentralized smart contract solution built on the Stellar blockchain using Soroban SDK. It provides a secure, immutable platform for managing personal notes directly on the blockchain. The contract ensures that your data is stored transparently and is only manageable through predefined smart contract functions, eliminating reliance on centralized database providers.
+## Why This Exists
+Traditional royalty settlement is slow and opaque:
+- Manual payout cycles delay cash flow.
+- Contributors cannot easily verify split logic.
+- Finance teams repeat the same reconciliation workflow.
 
-The system allows users to create, view, and delete notes, leveraging the efficiency and security of the Stellar network. Each note is uniquely identified and stored within the contract's instance storage, ensuring data persistence and reliability.
+RiseSplit moves split rules on-chain and executes payouts in one transaction.
 
-## Project Vision
-Our vision is to revolutionize personal productivity in the digital age by:
+## What The App Includes
+- Soroban smart contract in Rust (`contracts/notes/src/lib.rs`)
+- React + Vite frontend in `frontend/`
+- Freighter wallet signing flow
+- On-chain analytics reads (`shareholders`, `total revenue`, `last payment`)
 
-- **Decentralizing Data**: Moving note-taking from centralized servers to a global, distributed blockchain.
-- **Ensuring Ownership**: Empowering users to have complete control and ownership over their digital thoughts and information.
-- **Guaranteeing Immutability**: Providing a permanent, tamper-proof record of notes that cannot be altered or deleted by third parties.
-- **Enhancing Privacy**: Leveraging blockchain security to protect personal information from unauthorized access.
-- **Building Trustless Systems**: Creating a platform where data integrity is guaranteed by code, not by company promises.
+## App Name
+Product name: **RiseSplit**
+Brand label in UI: **Ghost-Author**
 
-We envision a future where digital information is truly personal and sovereign, empowering individuals with complete autonomy over their digital assets.
+## Test IDs (Current)
+- Smart contract ID (`VITE_ROYALTY_CONTRACT_ID`): `CBVQM5DH4CNQOXYODIBD5ZBCPIGOWDVVRIMMNMGRH4RLUMINZC73PMA2`
+- Dummy account 1: `GCG77MJHMK3QNHETQ5DY5G7K6YTBMTZTR7AB7NI3VH3OEQCXMGVG3ORH`
+- Dummy account 2: `GCT7DYT7AQE7K5RFOWL24VOOU5CN6PNUUK2ZFZOAJGHVH62TRZ7YFDYF`
 
-## Key Features
-### 1. Simple Note Creation
-- Create notes with just one function call.
-- Specify title and content for each note.
-- Automated ID generation for unique identification.
-- Persistent storage on the Stellar blockchain.
+## Core Contract Functions
+- `init(owner, shareholders)`
+  - Sets/updates royalty configuration.
+  - Requires total shares = `10000` bps.
+- `pay(payer, asset, amount)`
+  - Splits and transfers payment to all shareholders atomically.
+- `get_owner()`
+- `get_shareholders()`
+- `get_total_revenue(asset)`
+- `get_last_payment_at()`
 
-### 2. Efficient Data Retrieval
-- Fetch all stored notes in a single call.
-- Structured data representation for easy frontend integration.
-- Quick access to your entire note collection.
-- Real-time synchronization with the blockchain state.
+Error variants:
+- `InvalidPercentageSum`
+- `InsufficientPayment`
+- `UnauthorizedAccess`
+- `NotInitialized`
 
-### 3. Secure Deletion
-- Remove specific notes using their unique IDs.
-- Permanent removal from the contract storage.
-- Clean and efficient storage management.
-- Immediate update of the note list after deletion.
+## Project Structure
+- `contracts/notes/src/lib.rs`: royalty splitter contract
+- `frontend/src/pages/LandingPage.tsx`: landing page
+- `frontend/src/pages/DashboardPage.tsx`: app dashboard
+- `frontend/src/lib/contract.ts`: Soroban tx and read logic
+- `frontend/src/lib/freighter.ts`: Freighter integration
 
-### 4. Transparency and Security
-- View all note activities on the blockchain.
-- Blockchain-based verification of all storage actions.
-- Immutable records of note creation and deletion.
-- Protected against unauthorized modifications.
+## Prerequisites
+- Rust toolchain
+- Stellar CLI (`stellar`)
+- Node.js 18+
+- Freighter wallet extension
 
-### 5. Stellar Network Integration
-- Leverages the high speed and low cost of Stellar.
-- Built using the modern Soroban Smart Contract SDK.
-- Scalable architecture for growing note collections.
-- Interoperable with other Stellar-based services.
+## Frontend Setup
+```bash
+cd frontend
+npm install
+Copy-Item .env.example .env
+```
 
-## Contract Details
-- Contract Address: `CBLU4IUASQ4WUMOXBFLZRSBBLILGOH33GS4LUPKFBCCCMJCDQNMF7G2M`
-- Screenshot:
+Fill `.env`:
+```env
+VITE_STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+VITE_STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+VITE_STELLAR_NETWORK=TESTNET
+VITE_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
+VITE_ROYALTY_CONTRACT_ID=CBVQM5DH4CNQOXYODIBD5ZBCPIGOWDVVRIMMNMGRH4RLUMINZC73PMA2
+VITE_XLM_SAC_CONTRACT_ID=CHANGE_ME
+VITE_USDC_SAC_CONTRACT_ID=CHANGE_ME
+VITE_STELLAR_EXPERT_NETWORK=testnet
+```
 
-![Contract Screenshot](screenshot.png)
+## How To Obtain Env Values
 
-## Future Scope
-### Short-Term Enhancements
-1. **Note Encryption**: Support for end-to-end encryption of note content for enhanced privacy.
-2. **Category Management**: Add tags and categories to organize notes efficiently.
-3. **Rich Text Support**: Extend support beyond plain text to include Markdown and formatted content.
-4. **Search Functionality**: Implement advanced search filters for large note collections.
+### 1) Generate funded testnet account
+```bash
+stellar keys generate deployer --network testnet --fund --overwrite
+```
 
-### Medium-Term Development
-5. **Collaborative Notes**: Implement multi-signature requirements for shared or collaborative note-taking.
-6. **Shared Access**: Shared access for multiple addresses.
-7. **Permission-Based Controls**: Permission-based editing and viewing.
-8. **Version History Tracking**: Version history tracking.
-9. **Notification System**: Off-chain bridge to alert users of new updates or shared notes.
-10. **Asset Attachment**: Capability to attach digital assets or tokens to specific notes.
-11. **Inter-Contract Integration**: Allow other smart contracts to interact with and store data in the notes contract.
+### 2) Build + deploy contract
+```bash
+stellar contract build
+stellar contract deploy --network testnet --source-account deployer --alias ghost_author --package notes
+```
+Use returned contract ID as:
+- `VITE_ROYALTY_CONTRACT_ID`
 
-### Long-Term Vision
-12. **Cross-Chain Synchronization**: Extend note storage to multiple blockchain networks.
-13. **Decentralized UI Hosting**: Host the frontend on IPFS or similar decentralized platforms.
-14. **AI-Powered Summarization**: Optional integration with AI to help users summarize their notes.
-15. **Privacy Layers**: Implement zero-knowledge proofs for completely private note content.
-16. **DAO Governance**: Community-driven protocol improvements and feature prioritization.
-17. **Identity Management**: Integration with decentralized identity (DID) systems for user management.
+### 3) Get XLM SAC contract ID
+```bash
+stellar contract id asset --network testnet --asset native
+```
+Use result as:
+- `VITE_XLM_SAC_CONTRACT_ID`
 
-### Enterprise Features
-18. **Corporate Documentation**: Adapt the system for secure corporate record-keeping.
-19. **Immutable Logging**: Create time-locked logs for audit purposes.
-20. **Automated Reporting**: Automatic note triggers for periodic reporting.
-21. **Multi-Language Support**: Expand accessibility with internationalization.
+### 4) Get USDC SAC (optional)
+Use the issuer account of your testnet USDC-like token:
+```bash
+stellar contract id asset --network testnet --asset "USDC:<ISSUER_G_ADDRESS>"
+```
+Use result as:
+- `VITE_USDC_SAC_CONTRACT_ID`
 
-## Technical Requirements
-- Soroban SDK
-- Rust programming language
-- Stellar blockchain network
+## Run The App
+```bash
+cd frontend
+npm run dev
+```
 
-## Getting Started
-Deploy the smart contract to Stellar's Soroban network and interact with it using the three main functions:
+Build check:
+```bash
+npm run build
+```
 
-- `create_note()` - Create a new note with a title and content.
-- `get_notes()` - Retrieve all stored notes from the contract.
-- `delete_note()` - Remove a specific note by its ID.
+## Test Flow (Manual)
+1. Open `/` landing page, continue to `/app`.
+2. Connect Freighter.
+3. Ensure Freighter network is **Testnet**.
+4. Enter collaborator addresses and percentages (must total exactly `100%`).
+5. Click **Deploy / Update Royalty Config** and approve wallet signature.
+6. Enter payment amount, choose asset, click **Pay Royalty**.
+7. Verify success toast, analytics update, and tx link.
+
+## Common Issues
+- `Network Freighter harus testnet`
+  - Switch Freighter network to Testnet.
+- `Gagal membaca saldo account dari Horizon`
+  - Account is not funded on testnet.
+- `Kontrak belum diinisialisasi`
+  - Run deploy/update (`init`) before payment.
+- `Unsupported address type` / `Bad union switch`
+  - Use full valid Stellar address format and ensure SDK/frontend versions are current.
+
+## Notes
+- Frontend signs through Freighter; private keys are not handled in app code.
+- Transaction table is session-local (not persisted).
+- This repository currently targets **Stellar Testnet**.
