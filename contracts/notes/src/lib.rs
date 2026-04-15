@@ -1,110 +1,158 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Env, String, Symbol, Vec};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, token, Address, Env, Vec};
 
-// Struktur data yang akan menyimpan notes
+const BPS_DENOMINATOR: u32 = 10_000;
+
 #[contracttype]
-#[derive(Clone, Debug)]
-pub struct Note {
-
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Shareholder {
+    pub address: Address,
+    pub bps: u32,
 }
 
-// Storage key untuk data notes
-// const NOTE_DATA: Symbol = symbol_short!("NOTE_DATA");
+#[contracttype]
+#[derive(Clone)]
+enum DataKey {
+    Owner,
+    Shareholders,
+    LastPaymentAt,
+    AssetRevenue(Address),
+}
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum ContractError {
+    InvalidPercentageSum = 1,
+    InsufficientPayment = 2,
+    UnauthorizedAccess = 3,
+    NotInitialized = 4,
+}
 
 #[contract]
-pub struct NotesContract;
+pub struct RoyaltySplitterContract;
 
 #[contractimpl]
-impl NotesContract {
-    // Fungsi untuk mendapatkan semua notes
-    pub fn get_notes(env: Env) -> Vec<Note> {
-        // 1. ambil data notes dari storage
-        
-        return [];
+impl RoyaltySplitterContract {
+    pub fn init(env: Env, owner: Address, shareholders: Vec<Shareholder>) -> Result<(), ContractError> {
+        if env.storage().persistent().has(&DataKey::Owner) {
+            let current_owner: Address = env.storage().persistent().get(&DataKey::Owner).unwrap();
+            current_owner.require_auth();
+            if current_owner != owner {
+                return Err(ContractError::UnauthorizedAccess);
+            }
+        } else {
+            owner.require_auth();
+            env.storage().persistent().set(&DataKey::Owner, &owner);
+        }
+
+        validate_shareholders(&shareholders)?;
+        env.storage().persistent().set(&DataKey::Shareholders, &shareholders);
+
+        Ok(())
     }
 
-    // Fungsi untuk membuat note baru
-    pub fn create_note(env: Env, title: String, content: String) -> String {
-        // 1. ambil data notes dari storage
-        
-        // 2. Buat object note baru
-        
-        // 3. tambahkan note baru ke notes lama
-        
-        // 4. simpan notes ke storage
-        
-        return String::from_str(&env, "Notes berhasil ditambahkan");
+    pub fn pay(env: Env, payer: Address, asset: Address, amount: i128) -> Result<(), ContractError> {
+        if amount <= 0 {
+            return Err(ContractError::InsufficientPayment);
+        }
+
+        let shareholders = get_shareholders_or_err(&env)?;
+        if shareholders.is_empty() {
+            return Err(ContractError::NotInitialized);
+        }
+
+        payer.require_auth();
+
+        let token = token::Client::new(&env, &asset);
+        let mut distributed: i128 = 0;
+        let last_index = shareholders.len() - 1;
+
+        for i in 0..shareholders.len() {
+            let shareholder = shareholders.get(i).unwrap();
+            let payout = if i == last_index {
+                amount - distributed
+            } else {
+                let part = amount
+                    .checked_mul(shareholder.bps as i128)
+                    .ok_or(ContractError::InsufficientPayment)?
+                    / (BPS_DENOMINATOR as i128);
+
+                if shareholder.bps > 0 && part == 0 {
+                    return Err(ContractError::InsufficientPayment);
+                }
+
+                part
+            };
+
+            distributed = distributed
+                .checked_add(payout)
+                .ok_or(ContractError::InsufficientPayment)?;
+
+            token.transfer(&payer, &shareholder.address, &payout);
+        }
+
+        let revenue_key = DataKey::AssetRevenue(asset);
+        let total_revenue: i128 = env.storage().persistent().get(&revenue_key).unwrap_or(0);
+        let updated_revenue = total_revenue
+            .checked_add(amount)
+            .ok_or(ContractError::InsufficientPayment)?;
+        env.storage().persistent().set(&revenue_key, &updated_revenue);
+        env.storage()
+            .persistent()
+            .set(&DataKey::LastPaymentAt, &env.ledger().timestamp());
+
+        Ok(())
     }
 
-    // Fungsi untuk menghapus notes berdasarkan id
-    pub fn delete_note(env: Env, id: u64) -> String {
-        // 1. ambil data notes dari storage 
-
-        // 2. cari index note yang akan dihapus menggunakan perulangan
-
-        return String::from_str(&env, "Notes tidak ditemukan")
+    pub fn get_owner(env: Env) -> Result<Address, ContractError> {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Owner)
+            .ok_or(ContractError::NotInitialized)
     }
+
+    pub fn get_shareholders(env: Env) -> Result<Vec<Shareholder>, ContractError> {
+        get_shareholders_or_err(&env)
+    }
+
+    pub fn get_total_revenue(env: Env, asset: Address) -> i128 {
+        env.storage()
+            .persistent()
+            .get(&DataKey::AssetRevenue(asset))
+            .unwrap_or(0)
+    }
+
+    pub fn get_last_payment_at(env: Env) -> u64 {
+        env.storage().persistent().get(&DataKey::LastPaymentAt).unwrap_or(0)
+    }
+}
+
+fn get_shareholders_or_err(env: &Env) -> Result<Vec<Shareholder>, ContractError> {
+    env.storage()
+        .persistent()
+        .get(&DataKey::Shareholders)
+        .ok_or(ContractError::NotInitialized)
+}
+
+fn validate_shareholders(shareholders: &Vec<Shareholder>) -> Result<(), ContractError> {
+    if shareholders.is_empty() {
+        return Err(ContractError::InvalidPercentageSum);
+    }
+
+    let mut total_bps: u32 = 0;
+    for i in 0..shareholders.len() {
+        let shareholder = shareholders.get(i).unwrap();
+        total_bps = total_bps
+            .checked_add(shareholder.bps)
+            .ok_or(ContractError::InvalidPercentageSum)?;
+    }
+
+    if total_bps != BPS_DENOMINATOR {
+        return Err(ContractError::InvalidPercentageSum);
+    }
+
+    Ok(())
 }
 
 mod test;
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* --- CONTOH SCRIPT ---
-
-pub fn get_notes(env: Env) -> Vec<Note> {
-    // 1. ambil data notes dari storage
-    return env.storage().instance().get(&NOTE_DATA).unwrap_or(Vec::new(&env));
-}
-
-// Fungsi untuk membuat note baru
-pub fn create_note(env: Env, title: String, content: String) -> String {
-    // 1. ambil data notes dari storage
-    let mut notes: Vec<Note> = env.storage().instance().get(&NOTE_DATA).unwrap_or(Vec::new(&env));
-    
-    // 2. Buat object note baru
-    let note = Note {
-        id: env.prng().gen::<u64>(),
-        title: title,
-        content: content,
-    };
-    
-    // 3. tambahkan note baru ke notes lama
-    notes.push_back(note);
-    
-    // 4. simpan notes ke storage
-    env.storage().instance().set(&NOTE_DATA, &notes);
-    
-    return String::from_str(&env, "Notes berhasil ditambahkan");
-}
-
-// Fungsi untuk menghapus notes berdasarkan id
-pub fn delete_note(env: Env, id: u64) -> String {
-    // 1. ambil data notes dari storage 
-    let mut notes: Vec<Note> = env.storage().instance().get(&NOTE_DATA).unwrap_or(Vec::new(&env));
-
-    // 2. cari index note yang akan dihapus menggunakan perulangan
-    for i in 0..notes.len() {
-        if notes.get(i).unwrap().id == id {
-            notes.remove(i);
-
-            env.storage().instance().set(&NOTE_DATA, &notes);
-            return String::from_str(&env, "Berhasil hapus notes");
-        }
-    }
-
-    return String::from_str(&env, "Notes tidak ditemukan")
-}
-
-
-*/
