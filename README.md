@@ -1,4 +1,4 @@
-# RiseSplit
+<img width="1844" height="969" alt="{BBACB986-F58E-4A40-B825-64795AC1B6EF}" src="https://github.com/user-attachments/assets/78c35176-56ac-4b88-a13a-418f05823d65" /># RiseSplit
 
 RiseSplit is a Soroban-based royalty distribution app for creator collaborations. It allows one payer transaction to split funds atomically to multiple stakeholders using predefined basis-point shares.
 
@@ -138,3 +138,21 @@ npm run build
 - Frontend signs through Freighter; private keys are not handled in app code.
 - Transaction table is session-local (not persisted).
 - This repository currently targets **Stellar Testnet**.
+
+
+## Contract Details
+Contract Address ID: CBVQM5DH4CNQOXYODIBD5ZBCPIGOWDVVRIMMNMGRH4RLUMINZC73PMA2
+Or: https://lab.stellar.org/r/testnet/contract/CBVQM5DH4CNQOXYODIBD5ZBCPIGOWDVVRIMMNMGRH4RLUMINZC73PMA2
+<img width="1844" height="969" alt="{BBACB986-F58E-4A40-B825-64795AC1B6EF}" src="https://github.com/user-attachments/assets/3bbfaee0-d48f-471f-a208-7d16ad66db7c" />
+
+https://stellar.expert/explorer/testnet/contract/CBVQM5DH4CNQOXYODIBD5ZBCPIGOWDVVRIMMNMGRH4RLUMINZC73PMA2
+<img width="1915" height="864" alt="{7AA2C636-B9C8-462A-B938-6027159C774F}" src="https://github.com/user-attachments/assets/be841787-c362-4770-b300-f9e9d9a41133" />
+
+
+## Some Pic About The App
+<img width="1897" height="880" alt="{F594D6FA-C7D9-476F-81E4-231A3E91BE3D}" src="https://github.com/user-attachments/assets/4d1daafa-f33e-4805-85b4-1ca113753b03" />
+<img width="1898" height="870" alt="{57981FB6-B199-411F-AD24-6823D8289DFA}" src="https://github.com/user-attachments/assets/b26432b0-1bad-4c98-94ee-4cb27e54b5cf" />
+<img width="1892" height="870" alt="{014DCB72-23A0-4F00-98AE-79AF8934CF55}" src="https://github.com/user-attachments/assets/0561cb67-a0be-4dbb-80e6-41f5067ee1b6" />
+
+
+
