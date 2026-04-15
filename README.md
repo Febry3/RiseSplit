@@ -1,5 +1,3 @@
-<img width="1844" height="969" alt="{BBACB986-F58E-4A40-B825-64795AC1B6EF}" src="https://github.com/user-attachments/assets/78c35176-56ac-4b88-a13a-418f05823d65" /># RiseSplit
-
 RiseSplit is a Soroban-based royalty distribution app for creator collaborations. It allows one payer transaction to split funds atomically to multiple stakeholders using predefined basis-point shares.
 
 ## Why This Exists
