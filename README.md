@@ -1,3 +1,9 @@
+Main Net:
+Expert Url: https://stellar.expert/explorer/public/tx/2642e73586a3fa88d06413064def7066cbd279ee4175c619d3873e1258da960e
+Lab Url: https://lab.stellar.org/r/mainnet/contract/CDZPBJQBSHQ2ZJD3X2QKCMQ2TLJTNRVEHSVEVKONGO2OWE2U7UTG6OWA
+Deployed Url: https://rise-split.vercel.app/
+
+
 RiseSplit is a Soroban-based royalty distribution app for creator collaborations. It allows one payer transaction to split funds atomically to multiple stakeholders using predefined basis-point shares.
 
 ## Why This Exists
